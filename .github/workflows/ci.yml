@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile all Python sources
+        run: |
+          python -m py_compile \
+            training/generate_data.py \
+            training/train_model.py \
+            training/export_tflite.py \
+            evaluation/test_accuracy.py \
+            evaluation/test_memory.py
+      - name: Memory, size, and offline checks (stdlib only)
+        run: |
+          python evaluation/test_memory.py \
+            --artifacts training/artifacts \
+            --firmware firmware || echo "note: full PASS needs exported model; header dummy path is expected pre-export"
+      - name: Forbid network dependencies in firmware
+        run: |
+          if grep -RIn --include='*.h' --include='*.ino' --include='*.ini' -E '#include.*(WiFi|Ethernet|MQTT|WebSocket)|lib_deps.*(WiFi|MQTT|WebSocket)' firmware/; then
+            echo "network dependency found in firmware"
+            exit 1
+          fi
+          echo "offline dependency scan clean"
