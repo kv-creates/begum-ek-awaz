@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Training outputs (large, reproducible via training/*.py)
+training/data/
+training/artifacts/
+*.tflite
+*.h5
+*.keras
+
+# Keep the dummy placeholder header (small, required to compile)
+!firmware/src/model_data.h
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
